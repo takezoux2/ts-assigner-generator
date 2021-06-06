@@ -1,6 +1,6 @@
 {
-	"name": "ts-asigner",
-	"displayName": "ts-asigner",
+	"name": "@takezoux2/ts-asigner-generator",
+	"displayName": "ts-asigner-generator",
 	"description": "",
 	"version": "0.0.1",
 	"engines": {

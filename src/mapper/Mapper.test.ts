@@ -25,6 +25,11 @@ describe("Mapper", () => {
               name: "userId",
               type: new TypeRef("", "string", []),
               compareName: "userId".toLowerCase()
+            },
+            {
+              name: "tests",
+              type: TypeRef.Array(new TypeRef("", "number", [])),
+              compareName: "tests".toLowerCase()
             }
           ]
         },
@@ -45,6 +50,11 @@ describe("Mapper", () => {
               name: "user",
               type: new TypeRef("", "string", []),
               compareName: "user".toLowerCase()
+            },
+            {
+              name: "testss",
+              type: TypeRef.Array(new TypeRef("", "string", [])),
+              compareName: "testss".toLowerCase()
             }
           ]
         }

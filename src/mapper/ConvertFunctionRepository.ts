@@ -4,17 +4,17 @@ import * as mustache from "mustache"
 export class ConvertFunctionRepository {
   convertMap = new Map([
     ["number:string", "String({{param}})"],
-    ["number:boolean", "Boolean({{param}}"],
-    ["number:bigint", "BigInt({{param}}"],
-    ["string:number", "Number({{param}}"],
-    ["string:boolean", "Boolean({{param}}"],
-    ["string:bigint", "BigInt({{param}}"],
-    ["boolean:string", "String({{param}}"],
+    ["number:boolean", "Boolean({{param}})"],
+    ["number:bigint", "BigInt({{param}})"],
+    ["string:number", "Number({{param}})"],
+    ["string:boolean", "Boolean({{param}})"],
+    ["string:bigint", "BigInt({{param}})"],
+    ["boolean:string", "String({{param}})"],
     ["boolean:number", "{{param}} ? 1 : 0"],
     ["boolean:bigint", "{{param}} ? 1 : 0"],
-    ["bigint:string", "String({{param}}"],
-    ["bigint:number", "Number({{param}}"],
-    ["bigint:boolean", "Boolean({{param}}"]
+    ["bigint:string", "String({{param}})"],
+    ["bigint:number", "Number({{param}})"],
+    ["bigint:boolean", "Boolean({{param}})"]
   ])
 
   getConvertFunction(fromRef: TypeRef, toRef: TypeRef): string {

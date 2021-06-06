@@ -37,7 +37,7 @@ function ${from.name}To${to.name}(from: ${from.name}): ${to.name} {
         toField.type,
         fromField.type
       )
-      return mustache.render(f, { param: `from.${from.name}` })
+      return mustache.render(f, { param: `from.${fromField.name}` })
     }
 
     if (perfectMatch) {
@@ -64,6 +64,7 @@ function ${from.name}To${to.name}(from: ${from.name}): ${to.name} {
       .filter((f) => f.distance <= 5)
       .sort((a, b) => a.distance - b.distance)[0]
     if (!matchField) return undefined
+    console.log(`${toField.name} - ${JSON.stringify(matchField)}`)
     return {
       fromField: matchField.field,
       toField: toField,
