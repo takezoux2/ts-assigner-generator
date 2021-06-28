@@ -1,4 +1,4 @@
-# ts-asigner README
+# ts-assigner-generator README
 
 TypeScriptのインターフェイス変換を行うコードを生成するVS Codeの拡張機能です
 
@@ -33,8 +33,9 @@ function UserRequestToUserUseCase(from: UserRequest): UserUseCase {
 ```
 のような変換コードを生成します。
 
-## extensinoの使い方
+## extensionの使い方
 
+Ctrl + Shift + P > Type "
 
 
 ## Limitation
