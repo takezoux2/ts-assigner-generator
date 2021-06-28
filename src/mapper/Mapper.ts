@@ -26,8 +26,8 @@ function ${from.name}To${to.name}(from: ${from.name}): ${to.name} {
   return {
     ${mappings.map((f) => `${f.toField.name}: ${f.mapCode}`).join(",\n    ")}
   }
-}    
-    `
+}
+`
   }
   findField(toField: Field, from: TypeDef): FieldMap | undefined {
     const perfectMatch = from.fields.find((f) => f.name === toField.name)

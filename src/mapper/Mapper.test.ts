@@ -53,6 +53,26 @@ describe("Mapper", () => {
     )
   })
 
+  test("Assign code is generated even if 'to' object only has getter field", () => {
+    const mapper = new Mapper()
+
+    const t1 = new TypeDef("Hoge").addFields([
+      new Field("getHoge", new TypeRef("", "string", []), true)
+    ])
+    const t2 = new TypeDef("Fuga").addFields([
+      new Field("getHoge", new TypeRef("", "string", []), true)
+    ])
+
+    expect(mapper.generate(t1, t2).replace(/\s/g, "")).toBe(
+      `
+    function HogeToFuga(from: Hoge): Fuga {
+      return {
+        getHoge: from.getHoge()
+      }
+    }`.replace(/\s/g, "")
+    )
+  })
+
   test("Edit distance", () => {
     const mapper = new Mapper()
 

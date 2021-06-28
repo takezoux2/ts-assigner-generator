@@ -1,6 +1,7 @@
 import * as ts from "typescript"
 import { Field, TypeDef, TypeRef } from "./TypeDef"
 import * as fs from "fs"
+import * as path from "path"
 
 export class TypeDefLoader {
   typeDefs: TypeDef[] = []
@@ -129,8 +130,6 @@ export class TypeDefLoader {
     return this.typeDefs
   }
   load(filePath: string) {
-    console.log("Load", filePath)
-    console.log(fs.readFileSync(filePath.substring(1), "utf8"))
-    return this.run(fs.readFileSync(filePath.substring(1), "utf8"))
+    return this.run(fs.readFileSync(filePath, "utf8"))
   }
 }

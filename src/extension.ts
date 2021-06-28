@@ -4,6 +4,7 @@ import { SSL_OP_ALL } from "constants"
 import * as vscode from "vscode"
 import { Mapper } from "./mapper/Mapper"
 import { TypeDefLoader } from "./mapper/TypeDefLoader"
+import * as path from "path"
 
 function isAccessibleTsClassOrInterfaceSourceCode(s: vscode.SymbolInformation) {
   if (
@@ -20,9 +21,11 @@ function isAccessibleTsClassOrInterfaceSourceCode(s: vscode.SymbolInformation) {
   }
   return false
 }
-function pickSymbol(): Promise<vscode.QuickPickItem> {
+function pickSymbol(placeHolder: string): Promise<vscode.QuickPickItem> {
   return new Promise((resolve, reject) => {
     const picker = vscode.window.createQuickPick()
+    picker.placeholder = placeHolder
+
     picker.onDidChangeValue(async (v) => {
       const symbols: vscode.SymbolInformation[] = (
         (await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
@@ -34,7 +37,7 @@ function pickSymbol(): Promise<vscode.QuickPickItem> {
         picker.items = symbols.map((s) => {
           return {
             label: s.name,
-            detail: s.location.uri.path
+            detail: toValidPath(s.location.uri.path)
           }
         })
       }
@@ -56,6 +59,16 @@ function pickSymbol(): Promise<vscode.QuickPickItem> {
   })
 }
 
+function toValidPath(filePath: string) {
+  if (path.sep === "\\" && filePath.startsWith("/")) {
+    // Windowsの場合、"/C:/a/b/c.ts"の形式でパスが取得されてしまうが、
+    // そのままだと不正なパスになるため先頭の/を取り除く
+    return filePath.substring(1)
+  } else {
+    return filePath
+  }
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -69,29 +82,19 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand(
     "ts-asigner.generateAssignCode",
     async () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      // vscode.window.showInformationMessage('Hello World from ts-asigner!');
-      // const quickPick = vscode.window.showQuickPick(["a","b"]);
-      // vscode.window.showInputBox({
-      // 	title: "hoge",
-      // 	placeHolder: "aaa"
-      // });
-      console.log("Try to get symbols")
-      const fromSymbol = await pickSymbol()
-      const toSymbol = await pickSymbol()
+      const fromSymbol = await pickSymbol(
+        "Select 'convert from' class/interface"
+      )
+      const toSymbol = await pickSymbol("Select 'convert to' class/interface")
 
-      const loader = new TypeDefLoader()
-      for (const filePath of new Set([fromSymbol.detail, toSymbol.detail])) {
-        loader.load(filePath ?? "")
+      const loadTypeDef = (s: vscode.QuickPickItem) => {
+        const loader = new TypeDefLoader()
+        loader.load(s.detail ?? "")
+        return loader.typeDefs.find((t) => t.name === s.label)
       }
 
-      const fromTypeDef = loader.typeDefs.find(
-        (t) => t.name === fromSymbol.label
-      )
-      console.log(loader.typeDefs.map((t) => t.name))
-      const toTypeDef = loader.typeDefs.find((t) => t.name === toSymbol.label)
-      console.log(fromTypeDef, toTypeDef)
+      const fromTypeDef = loadTypeDef(fromSymbol)
+      const toTypeDef = loadTypeDef(toSymbol)
       if (!fromTypeDef) {
         throw new Error(`Class:${fromSymbol.label} not found`)
       }
@@ -101,11 +104,10 @@ export function activate(context: vscode.ExtensionContext) {
       const code = new Mapper().generate(fromTypeDef, toTypeDef)
       console.log(code)
 
-      vscode.workspace.openTextDocument({
+      const f = await vscode.workspace.openTextDocument({
         language: "TypeScript",
         content: code
       })
-      //console.log(firstSymbol, secondSymbol);
     }
   )
 

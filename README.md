@@ -31,6 +31,17 @@ function UserRequestToUserUseCase(from: UserRequest): UserUseCase {
   }
 }
 ```
+のような変換コードを生成します。
+
+## extensinoの使い方
+
+
+
+## Limitation
+
+このライブラリは代入コードの雛形を生成する拡張機能です。コンパイルエラーの無い完全なコードを生成することは目的にしていません。
+なので、生成されたコードをコピペなどで移動して、適宜修正を行ってください。
+
 
 
 ## Extension Settings
