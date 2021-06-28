@@ -1,23 +1,30 @@
 {
-	"name": "@takezoux2/ts-asigner-generator",
-	"displayName": "ts-asigner-generator",
+	"name": "ts-assigner-generator",
+	"displayName": "ts-assigner-generator",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.56.0"
 	},
+	"publisher": "takezoux2",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:takezoux2/ts-assigner-generator.git"
+	},
+	"homepage": "https://github.com/takezoux2/ts-assigner-generator",
+	"license": "MIT",
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:ts-asigner.generateAssignCode"
+		"onCommand:ts-assigner.generateAssignCode"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "ts-asigner.generateAssignCode",
-				"title": "Generate assign code"
+				"command": "ts-assigner.generateAssignCode",
+				"title": "ts-assigner-gen: Generate"
 			}
 		]
 	},
@@ -51,6 +58,7 @@
 		"prettier": "^2.3.1",
 		"ts-jest": "^26.1.1",
 		"ts-node": "^10.0.0",
+		"vsce": "^1.95.0",
 		"vscode-test": "^1.5.2"
 	}
 }
