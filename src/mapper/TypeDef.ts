@@ -13,6 +13,11 @@ export class TypeDef {
 
   addField(field: Field) {
     this.fields.push(field)
+    return this
+  }
+  addFields(fields: Field[]) {
+    this.fields = this.fields.concat(fields)
+    return this
   }
 }
 export class Field {

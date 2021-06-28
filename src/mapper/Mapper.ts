@@ -34,8 +34,8 @@ function ${from.name}To${to.name}(from: ${from.name}): ${to.name} {
 
     const renderCode = (fromField: Field) => {
       const f = this.convertFunctionRepo.getConvertFunction(
-        toField.type,
-        fromField.type
+        fromField.type,
+        toField.type
       )
       return mustache.render(f, { param: `from.${fromField.name}` })
     }

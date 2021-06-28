@@ -2,8 +2,10 @@
 // Import the module and reference it with the alias vscode in your code below
 import { SSL_OP_ALL } from "constants"
 import * as vscode from "vscode"
+import { Mapper } from "./mapper/Mapper"
+import { TypeDefLoader } from "./mapper/TypeDefLoader"
 
-function isSourceCodeAccessibleTsClassOrInterface(s: vscode.DocumentSymbol) {
+function isAccessibleTsClassOrInterfaceSourceCode(s: vscode.SymbolInformation) {
   if (
     s.kind === vscode.SymbolKind.Class ||
     s.kind === vscode.SymbolKind.Interface
@@ -18,6 +20,41 @@ function isSourceCodeAccessibleTsClassOrInterface(s: vscode.DocumentSymbol) {
   }
   return false
 }
+function pickSymbol(): Promise<vscode.QuickPickItem> {
+  return new Promise((resolve, reject) => {
+    const picker = vscode.window.createQuickPick()
+    picker.onDidChangeValue(async (v) => {
+      const symbols: vscode.SymbolInformation[] = (
+        (await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
+          "vscode.executeWorkspaceSymbolProvider",
+          v
+        )) ?? []
+      ).filter(isAccessibleTsClassOrInterfaceSourceCode)
+      if (symbols.length > 0) {
+        picker.items = symbols.map((s) => {
+          return {
+            label: s.name,
+            detail: s.location.uri.path
+          }
+        })
+      }
+    })
+    let resolved = false
+    picker.onDidAccept(() => {
+      const items = picker.items
+      resolved = true
+      picker.hide()
+      resolve(items[0])
+    })
+    picker.onDidHide(() => {
+      if (!resolved) {
+        reject(new Error("Canceled"))
+        resolved = true
+      }
+    })
+    picker.show()
+  })
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -30,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
   const disposable = vscode.commands.registerCommand(
-    "ts-asigner.helloWorld",
+    "ts-asigner.generateAssignCode",
     async () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
@@ -41,39 +78,33 @@ export function activate(context: vscode.ExtensionContext) {
       // 	placeHolder: "aaa"
       // });
       console.log("Try to get symbols")
-      const picker = vscode.window.createQuickPick()
-      picker.onDidChangeValue(async (v) => {
-        const symbols: vscode.DocumentSymbol[] = (
-          (await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
-            "vscode.executeWorkspaceSymbolProvider",
-            v
-          )) ?? []
-        ).filter(isSourceCodeAccessibleTsClassOrInterface)
-        if (symbols.length > 0) {
-          picker.items = symbols.map((s) => {
-            return {
-              label: s.name,
-              detail: s.detail
-            }
-          })
-        }
-      })
-      picker.onDidAccept(() => {
-        vscode.workspace.openTextDocument({
-          language: "TypeScript",
-          content: "select " + picker.activeItems.map((i) => i.label).join(",")
-        })
-        picker.hide()
-      })
-      picker.show()
-      // const firstSymbol = await vscode.window.showQuickPick(symbols.map(s => {
-      // 	return s.name;
-      // }));
+      const fromSymbol = await pickSymbol()
+      const toSymbol = await pickSymbol()
 
-      // const secondSymbol = await vscode.window.showQuickPick(symbols.map(s => {
-      // 	return s.name;
-      // }));
+      const loader = new TypeDefLoader()
+      for (const filePath of new Set([fromSymbol.detail, toSymbol.detail])) {
+        loader.load(filePath ?? "")
+      }
 
+      const fromTypeDef = loader.typeDefs.find(
+        (t) => t.name === fromSymbol.label
+      )
+      console.log(loader.typeDefs.map((t) => t.name))
+      const toTypeDef = loader.typeDefs.find((t) => t.name === toSymbol.label)
+      console.log(fromTypeDef, toTypeDef)
+      if (!fromTypeDef) {
+        throw new Error(`Class:${fromSymbol.label} not found`)
+      }
+      if (!toTypeDef) {
+        throw new Error(`Class:${toSymbol.label} not found`)
+      }
+      const code = new Mapper().generate(fromTypeDef, toTypeDef)
+      console.log(code)
+
+      vscode.workspace.openTextDocument({
+        language: "TypeScript",
+        content: code
+      })
       //console.log(firstSymbol, secondSymbol);
     }
   )

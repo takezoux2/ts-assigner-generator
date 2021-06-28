@@ -22,6 +22,12 @@ export class ConvertFunctionRepository {
     return this.wrapSpecialTypes(fromRef, v)
   }
 
+  /**
+   * 配列などの特殊処理を行う型の解決を行う
+   * @param fromRef
+   * @param convertFunc
+   * @returns
+   */
   wrapSpecialTypes(fromRef: TypeRef, convertFunc: string): string {
     if (fromRef.isArray) {
       const f = mustache.render(convertFunc, { param: "e" })
@@ -34,14 +40,23 @@ export class ConvertFunctionRepository {
     }
   }
 
+  /**
+   * オブジェクトの変換するコードを取得
+   * @param fromType
+   * @param toType
+   * @returns
+   */
   getFunction(fromType: string, toType: string): string {
+    // 同じ型の場合は変換不要
     if (fromType === toType) {
       return "{{param}}"
     }
+    // 変換関数が登録されている場合に取得
     const v = this.convertMap.get(`${fromType}:${toType}`)
     if (v) {
       return v
     }
+    // それ以外は生成される変換関数を返す
     return `${fromType}To${toType}({{param}})`
   }
 }

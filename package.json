@@ -10,14 +10,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:ts-asigner.helloWorld"
+		"onCommand:ts-asigner.generateAssignCode"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "ts-asigner.helloWorld",
-				"title": "Hello World"
+				"command": "ts-asigner.generateAssignCode",
+				"title": "Generate assign code"
 			}
 		]
 	},
