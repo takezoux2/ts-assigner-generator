@@ -21,9 +21,21 @@ export class TypeDef {
   }
 }
 export class Field {
+  static getCompareName(name: string): string {
+    if (name.startsWith("getter")) {
+      return this.getCompareName(name.substring(3))
+    } else {
+      return name.replace("_", "").toLowerCase()
+    }
+  }
+
   compareName: string
-  constructor(public name: string, public type: TypeRef) {
-    this.compareName = name.replace("_", "").toLowerCase()
+  constructor(
+    public name: string,
+    public type: TypeRef,
+    public isFunction: boolean
+  ) {
+    this.compareName = Field.getCompareName(name)
   }
 }
 
@@ -44,6 +56,7 @@ export class TypeRef {
   static create(name: string, generics: TypeRef[] = []) {
     return new TypeRef("", name, generics)
   }
+  static Any = new TypeRef("", "any", [])
 
   constructor(
     public namespace: string,

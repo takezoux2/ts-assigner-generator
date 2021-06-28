@@ -1,54 +1,23 @@
 import * as assert from "assert"
 import { Mapper } from "./Mapper"
-import { TypeRef, TypeDef } from "./TypeDef"
+import { TypeRef, TypeDef, Field } from "./TypeDef"
 
 describe("Mapper", () => {
   test("Convert", () => {
     const mapper = new Mapper()
 
     const t1 = new TypeDef("Hoge").addFields([
-      {
-        name: "hoge",
-        type: new TypeRef("", "string", []),
-        compareName: "hoge"
-      },
-      {
-        name: "hoge_fuga_aaa",
-        type: new TypeRef("", "string", []),
-        compareName: "hoge_fuga_aaa".replace("_", "").toLowerCase()
-      },
-      {
-        name: "userId",
-        type: new TypeRef("", "string", []),
-        compareName: "userId".toLowerCase()
-      },
-      {
-        name: "tests",
-        type: TypeRef.Array(new TypeRef("", "number", [])),
-        compareName: "tests".toLowerCase()
-      }
+      new Field("hoge", new TypeRef("", "string", []), false),
+      new Field("hoge_fuga_aaa", new TypeRef("", "string", []), false),
+      new Field("hoge", new TypeRef("", "string", []), false),
+      new Field("userId", new TypeRef("", "string", []), false),
+      new Field("tests", TypeRef.Array(new TypeRef("", "number", [])), false)
     ])
     const t2 = new TypeDef("Fuga").addFields([
-      {
-        name: "hoge",
-        type: new TypeRef("", "string", []),
-        compareName: "hoge"
-      },
-      {
-        name: "hogeFugaAaa",
-        type: new TypeRef("", "number", []),
-        compareName: "hogeFugaAaa".toLowerCase()
-      },
-      {
-        name: "user",
-        type: new TypeRef("", "string", []),
-        compareName: "user".toLowerCase()
-      },
-      {
-        name: "testss",
-        type: TypeRef.Array(new TypeRef("", "string", [])),
-        compareName: "testss".toLowerCase()
-      }
+      new Field("hoge", new TypeRef("", "string", []), false),
+      new Field("hogeFugaAaa", new TypeRef("", "number", []), false),
+      new Field("user", new TypeRef("", "string", []), false),
+      new Field("testss", TypeRef.Array(new TypeRef("", "string", [])), false)
     ])
 
     expect(mapper.generate(t1, t2).replace(/\s/g, "")).toBe(
@@ -59,6 +28,26 @@ describe("Mapper", () => {
         hogeFugaAaa: Number(from.hoge_fuga_aaa),
         user: from.userId,
         testss: from.tests.map(e => String(e))
+      }
+    }`.replace(/\s/g, "")
+    )
+  })
+
+  test("GetterMethod are called by func call", () => {
+    const mapper = new Mapper()
+
+    const t1 = new TypeDef("Hoge").addFields([
+      new Field("getHoge", new TypeRef("", "string", []), true)
+    ])
+    const t2 = new TypeDef("Fuga").addFields([
+      new Field("hoge", new TypeRef("", "string", []), false)
+    ])
+
+    expect(mapper.generate(t1, t2).replace(/\s/g, "")).toBe(
+      `
+    function HogeToFuga(from: Hoge): Fuga {
+      return {
+        hoge: from.getHoge()
       }
     }`.replace(/\s/g, "")
     )

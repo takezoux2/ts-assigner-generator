@@ -37,7 +37,10 @@ function ${from.name}To${to.name}(from: ${from.name}): ${to.name} {
         fromField.type,
         toField.type
       )
-      return mustache.render(f, { param: `from.${fromField.name}` })
+      const fieldCall = fromField.isFunction
+        ? `${fromField.name}()`
+        : fromField.name
+      return mustache.render(f, { param: `from.${fieldCall}` })
     }
 
     if (perfectMatch) {
